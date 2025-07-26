@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syed Ghina ERP System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js for 3D background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #1e293b;
+            --accent-color: #10b981;
+            --text-color: #334155;
+            --light-bg: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+        
+        .sidebar {
+            background-color: var(--secondary-color);
+            min-height: 100vh;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            margin: 4px 0;
+            padding: 10px 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        .dashboard-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+        
+        .card-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .card-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .card-info {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        
+        .badge {
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+        
+        .search-bar {
+            position: relative;
+        }
+        
+        .search-bar input {
+            padding-left: 40px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .search-bar .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 10px;
+            color: #94a3b8;
+        }
+        
+        /* Loading Screen Styles - Completely Responsive */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            transition: opacity 0.8s ease-out;
+        }
+        
+        #threejs-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .loading-content {
+            text-align: center;
+            z-index: 1;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .spinner {
+            width: 4rem;
+            height: 4rem;
+            border: 0.5rem solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        .loading-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            line-height: 1.2;
+        }
+        
+        .loading-subtext {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        
+        .loading-designer {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            line-height: 1.3;
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 300px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Search Results Section */
+        #searchResultsSection {
+            display: none;
+        }
+        
+        .search-result-card {
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .search-result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+        
+        .search-result-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        /* Back Button */
+        .back-button {
+            margin-right: 15px;
+            border-radius: 8px;
+            padding: 8px 15px;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                min-height: auto;
+                height: auto;
+                width: 100%;
+            }
+            
+            main {
+                margin-top: 20px;
+            }
+            
+            .search-bar {
+                margin-top: 15px;
+                width: 100% !important;
+            }
+            
+            .loading-text {
+                font-size: 1.6rem;
+            }
+            
+            .loading-subtext {
+                font-size: 0.9rem;
+            }
+            
+            .loading-designer {
+                font-size: 0.75rem;
+            }
+            
+            .spinner {
+                width: 3.5rem;
+                height: 3.5rem;
+                border-width: 0.45rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .loading-text {
+                font-size: 1.4rem;
+            }
+            
+            .loading-subtext {
+                font-size: 0.85rem;
+            }
+            
+            .loading-designer {
+                font-size: 0.7rem;
+            }
+            
+            .progress-container {
+                height: 5px;
+            }
+            
+            .back-button {
+                margin-right: 10px;
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .dashboard-card .fa-3x {
+                font-size: 2em !important;
+            }
+            
+            .card-title {
+                font-size: 1rem;
+            }
+            
+            .card-text {
+                font-size: 1.25rem;
+            }
+            
+            .sidebar .nav-link {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .loading-text {
+                font-size: 1.3rem;
+            }
+            
+            .loading-subtext {
+                font-size: 0.8rem;
+            }
+            
+            .loading-designer {
+                font-size: 0.65rem;
+            }
+            
+            .spinner {
+                width: 3rem;
+                height: 3rem;
+                border-width: 0.4rem;
+            }
+            
+            .progress-container {
+                max-width: 250px;
+                height: 4px;
+            }
+            
+            .search-result-card {
+                margin-bottom: 15px;
+            }
+            
+            .search-result-header {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .modal-dialog {
+                margin: 0.5rem auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen - Now perfectly centered and responsive -->
+    <div id="loadingScreen">
+        <div id="threejs-bg"></div>
+        <div class="loading-content">
+            <div class="spinner-container">
+                <div class="spinner"></div>
+            </div>
+            <h1 class="loading-text">Syed Ghina ERP</h1>
+            <p class="loading-subtext">Mini ERP Management System</p>
+            <p class="loading-designer">This is ERP Mini Software Design by Syed Ghina Ul Hassan</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="loadingProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ERP Dashboard -->
+    <div class="container-fluid" id="erpSystem" style="display: none;">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4 p-3" style="background-color: rgba(0,0,0,0.2);">
+                        <h4 class="text-white mb-0"><i class="fas fa-cubes me-2"></i>Syed Ghina ERP</h4>
+                    </div>
+                    <ul class="nav flex-column px-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="employees">
+                                <i class="fas fa-users"></i> Employees
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="inventory">
+                                <i class="fas fa-boxes"></i> Inventory
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="sales">
+                                <i class="fas fa-shopping-cart"></i> Sales
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <!-- Dashboard Header -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-outline-secondary back-button me-2" id="backButton" style="display: none;">
+                            <i class="fas fa-arrow-left me-1"></i> Back
+                        </button>
+                        <h2 id="sectionTitle" class="mb-3 mb-md-0">Dashboard</h2>
+                    </div>
+                    <div class="d-flex flex-column flex-md-row w-100 w-md-auto">
+                        <div class="input-group search-bar mb-3 mb-md-0 me-md-3" style="width: 100%; max-width: 400px;">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="form-control" id="globalSearch" placeholder="Search employees, inventory, sales...">
+                            <button class="btn btn-primary" type="button" id="searchButton">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div class="dropdown ms-md-3 mt-2 mt-md-0">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i> Admin
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results Section -->
+                <div id="searchResultsSection" class="erp-section">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class="mb-4">Search Results for "<span id="searchQueryText"></span>"</h4>
+                        </div>
+                        
+                        <!-- Employees Results -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="search-result-card">
+                                <div class="search-result-header d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-users me-2"></i> Employees</span>
+                                    <span class="badge bg-white text-primary" id="employeesResultsCount">0</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="employeesResultsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Position</th>
+                                                    <th>Dept</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Employee search results will be added here by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="text-end">
+                                        <a href="#" class="btn btn-sm btn-outline-primary view-all" data-section="employees">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inventory Results -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="search-result-card">
+                                <div class="search-result-header d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-boxes me-2"></i> Inventory</span>
+                                    <span class="badge bg-white text-primary" id="inventoryResultsCount">0</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="inventoryResultsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Category</th>
+                                                    <th>Qty</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Inventory search results will be added here by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="text-end">
+                                        <a href="#" class="btn btn-sm btn-outline-primary view-all" data-section="inventory">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sales Results -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="search-result-card">
+                                <div class="search-result-header d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-shopping-cart me-2"></i> Sales</span>
+                                    <span class="badge bg-white text-primary" id="salesResultsCount">0</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="salesResultsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Customer</th>
+                                                    <th>Product</th>
+                                                    <th>Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Sales search results will be added here by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="text-end">
+                                        <a href="#" class="btn btn-sm btn-outline-primary view-all" data-section="sales">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="erp-section">
+                    <!-- Cards -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-lg-6 mb-4">
+                            <div class="card card-primary dashboard-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Total Sales</h5>
+                                            <h2 class="card-text" id="totalSales">Rs. 0</h2>
+                                        </div>
+                                        <i class="fas fa-rupee-sign fa-3x opacity-50"></i>
+                                    </div>
+                                    <p class="card-text mt-2"><small id="salesChange">Loading...</small></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 mb-4">
+                            <div class="card card-success dashboard-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Employees</h5>
+                                            <h2 class="card-text" id="totalEmployees">0</h2>
+                                        </div>
+                                        <i class="fas fa-users fa-3x opacity-50"></i>
+                                    </div>
+                                    <p class="card-text mt-2"><small id="employeesStatus">Loading...</small></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 mb-4">
+                            <div class="card card-warning dashboard-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Inventory</h5>
+                                            <h2 class="card-text" id="totalInventory">0</h2>
+                                        </div>
+                                        <i class="fas fa-boxes fa-3x opacity-50"></i>
+                                    </div>
+                                    <p class="card-text mt-2"><small id="inventoryStatus">Loading...</small></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 mb-4">
+                            <div class="card card-info dashboard-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Recent Orders</h5>
+                                            <h2 class="card-text" id="recentOrders">0</h2>
+                                        </div>
+                                        <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                                    </div>
+                                    <p class="card-text mt-2"><small id="ordersStatus">Loading...</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Activity</h5>
+                            <button class="btn btn-sm btn-outline-primary" id="refreshActivity">
+                                <i class="fas fa-sync-alt me-1"></i> Refresh
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="activityTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>User</th>
+                                            <th>Activity</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Activity items will be added here by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employees Section -->
+                <div id="employeesSection" class="erp-section" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Employee Management</h5>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                                <i class="fas fa-plus me-1"></i> Add Employee
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="employeesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Position</th>
+                                            <th>Department</th>
+                                            <th>Salary (Rs.)</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Employee data will be added here by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Section -->
+                <div id="inventorySection" class="erp-section" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Inventory Management</h5>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                                <i class="fas fa-plus me-1"></i> Add Item
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="inventoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Item Name</th>
+                                            <th>Category</th>
+                                            <th>Quantity</th>
+                                            <th>Price (Rs.)</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Inventory data will be added here by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Section -->
+                <div id="salesSection" class="erp-section" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Sales Records</h5>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSaleModal">
+                                <i class="fas fa-plus me-1"></i> Add Sale
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="salesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Date</th>
+                                            <th>Customer</th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Amount (Rs.)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Sales data will be added here by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="employeeForm">
+                        <div class="mb-3">
+                            <label for="empName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="empName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="empEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="empEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="empPosition" class="form-label">Position</label>
+                            <input type="text" class="form-control" id="empPosition" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="empDepartment" class="form-label">Department</label>
+                            <select class="form-select" id="empDepartment" required>
+                                <option value="">Select Department</option>
+                                <option value="HR">HR</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Sales">Sales</option>
+                                <option value="IT">IT</option>
+                                <option value="Operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="empSalary" class="form-label">Salary (Rs.)</label>
+                            <input type="number" class="form-control" id="empSalary" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveEmployeeBtn">Save Employee</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Inventory Modal -->
+    <div class="modal fade" id="addInventoryModal" tabindex="-1" aria-labelledby="addInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInventoryModalLabel">Add Inventory Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="inventoryForm">
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">Item Name</label>
+                            <input type="text" class="form-control" id="itemName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemCategory" class="form-label">Category</label>
+                            <select class="form-select" id="itemCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Office Supplies">Office Supplies</option>
+                                <option value="Raw Materials">Raw Materials</option>
+                                <option value="Finished Goods">Finished Goods</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemQuantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="itemQuantity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemPrice" class="form-label">Price (Rs.)</label>
+                            <input type="number" step="0.01" class="form-control" id="itemPrice" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveInventoryBtn">Save Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Sale Modal -->
+    <div class="modal fade" id="addSaleModal" tabindex="-1" aria-labelledby="addSaleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSaleModalLabel">Record New Sale</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="saleForm">
+                        <div class="mb-3">
+                            <label for="saleCustomer" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="saleCustomer" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="saleProduct" class="form-label">Product</label>
+                            <select class="form-select" id="saleProduct" required>
+                                <option value="">Select Product</option>
+                                <!-- Products will be added by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="saleQuantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="saleQuantity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="saleDate" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="saleDate" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveSaleBtn">Record Sale</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ERP Application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Three.js for 3D background
+            function initThreeJS() {
+                const container = document.getElementById('threejs-bg');
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(width, height);
+                container.appendChild(renderer.domElement);
+                
+                // Create particles with more modern effect
+                const particlesGeometry = new THREE.BufferGeometry();
+                const particleCount = 1500;
+                
+                const posArray = new Float32Array(particleCount * 3);
+                const colorArray = new Float32Array(particleCount * 3);
+                
+                for(let i = 0; i < particleCount * 3; i++) {
+                    posArray[i] = (Math.random() - 0.5) * 10;
+                    colorArray[i] = Math.random();
+                }
+                
+                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+                particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+                
+                const particlesMaterial = new THREE.PointsMaterial({
+                    size: 0.03,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending,
+                    sizeAttenuation: true
+                });
+                
+                const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+                scene.add(particlesMesh);
+                
+                camera.position.z = 3;
+                
+                // Animation loop with more dynamic movement
+                function animate() {
+                    requestAnimationFrame(animate);
+                    
+                    particlesMesh.rotation.x += 0.0003;
+                    particlesMesh.rotation.y += 0.0008;
+                    particlesMesh.rotation.z += 0.0002;
+                    
+                    // Pulsing effect
+                    const time = Date.now() * 0.001;
+                    particlesMesh.material.size = 0.03 + Math.sin(time * 2) * 0.01;
+                    
+                    renderer.render(scene, camera);
+                }
+                
+                animate();
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                });
+            }
+            
+            // Initialize 3D background
+            initThreeJS();
+            
+            // Show loading screen with progress (10 seconds)
+            let progress = 0;
+            const loadingInterval = setInterval(function() {
+                progress += 1;
+                document.getElementById('loadingProgress').style.width = progress + '%';
+                
+                if(progress >= 100) {
+                    clearInterval(loadingInterval);
+                    document.getElementById('loadingScreen').style.opacity = '0';
+                    setTimeout(function() {
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('erpSystem').style.display = 'block';
+                    }, 800);
+                }
+            }, 100); // 10 seconds total (100 * 100ms)
+            
+            // DOM Elements
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            const sections = document.querySelectorAll('.erp-section');
+            const sectionTitle = document.getElementById('sectionTitle');
+            const globalSearch = document.getElementById('globalSearch');
+            const searchButton = document.getElementById('searchButton');
+            const searchResultsSection = document.getElementById('searchResultsSection');
+            const searchQueryText = document.getElementById('searchQueryText');
+            const backButton = document.getElementById('backButton');
+            
+            // Initialize data with Pakistani names and prices
+            let employees = [
+                { id: 1, name: "Ali Khan", email: "ali.khan@company.com", position: "Manager", department: "Sales", salary: 150000 },
+                { id: 2, name: "Fatima Ahmed", email: "fatima.ahmed@company.com", position: "Developer", department: "IT", salary: 120000 },
+                { id: 3, name: "Usman Malik", email: "usman.malik@company.com", position: "Accountant", department: "Finance", salary: 110000 },
+                { id: 4, name: "Ayesha Raza", email: "ayesha.raza@company.com", position: "HR Executive", department: "HR", salary: 100000 },
+                { id: 5, name: "Bilal Hassan", email: "bilal.hassan@company.com", position: "Operations Head", department: "Operations", salary: 160000 }
+            ];
+            
+            let inventory = [
+                { id: 1, name: "Laptop", category: "Electronics", quantity: 15, price: 120000, status: "In Stock" },
+                { id: 2, name: "Office Chair", category: "Furniture", quantity: 8, price: 15000, status: "Low Stock" },
+                { id: 3, name: "Printer", category: "Electronics", quantity: 5, price: 30000, status: "In Stock" },
+                { id: 4, name: "Desk", category: "Furniture", quantity: 12, price: 20000, status: "In Stock" },
+                { id: 5, name: "Monitor", category: "Electronics", quantity: 7, price: 40000, status: "Low Stock" }
+            ];
+            
+            let sales = [
+                { id: 1, date: "2023-07-15", customer: "Tech Solutions Pakistan", product: "Laptop", quantity: 2, amount: 240000, status: "Completed" },
+                { id: 2, date: "2023-07-14", customer: "Office Plus Karachi", product: "Office Chair", quantity: 5, amount: 75000, status: "Completed" },
+                { id: 3, date: "2023-07-10", customer: "Print World Lahore", product: "Printer", quantity: 1, amount: 30000, status: "Pending" },
+                { id: 4, date: "2023-07-08", customer: "Design Hub Islamabad", product: "Monitor", quantity: 3, amount: 120000, status: "Completed" },
+                { id: 5, date: "2023-07-05", customer: "Startup Inc Karachi", product: "Desk", quantity: 4, amount: 80000, status: "Completed" }
+            ];
+            
+            let activities = [
+                { time: "10:30 AM", user: "Ali Khan", activity: "Added new sale #SL-1004", status: "Completed" },
+                { time: "Yesterday", user: "Fatima Ahmed", activity: "Updated inventory levels", status: "Completed" },
+                { time: "Yesterday", user: "Usman Malik", activity: "Processed payroll", status: "Completed" },
+                { time: "Jul 12", user: "System", activity: "Database backup completed", status: "Completed" },
+                { time: "Jul 11", user: "Ayesha Raza", activity: "Onboarded 2 new employees", status: "Completed" }
+            ];
+            
+            // Initialize the dashboard
+            updateDashboard();
+            loadEmployees();
+            loadInventory();
+            loadSales();
+            loadActivity();
+            
+            // Navigation between sections
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    
+                    // Hide search results if showing
+                    searchResultsSection.style.display = 'none';
+                    backButton.style.display = 'none';
+                    
+                    // Update active link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show the selected section
+                    sections.forEach(s => s.style.display = 'none');
+                    document.getElementById(`${section}Section`).style.display = 'block';
+                    sectionTitle.textContent = this.textContent.trim();
+                    
+                    // Update data if needed
+                    if(section === 'dashboard') updateDashboard();
+                    if(section === 'employees') loadEmployees();
+                    if(section === 'inventory') loadInventory();
+                    if(section === 'sales') loadSales();
+                });
+            });
+            
+            // Back button functionality
+            backButton.addEventListener('click', function() {
+                searchResultsSection.style.display = 'none';
+                backButton.style.display = 'none';
+                
+                // Show dashboard
+                sections.forEach(s => s.style.display = 'none');
+                document.getElementById('dashboardSection').style.display = 'block';
+                sectionTitle.textContent = 'Dashboard';
+                
+                // Update active nav link
+                navLinks.forEach(l => l.classList.remove('active'));
+                document.querySelector('.nav-link[data-section="dashboard"]').classList.add('active');
+                
+                updateDashboard();
+            });
+            
+            // View All buttons in search results
+            document.querySelectorAll('.view-all').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    
+                    // Hide search results
+                    searchResultsSection.style.display = 'none';
+                    backButton.style.display = 'none';
+                    
+                    // Show the selected section
+                    sections.forEach(s => s.style.display = 'none');
+                    document.getElementById(`${section}Section`).style.display = 'block';
+                    sectionTitle.textContent = document.querySelector(`.nav-link[data-section="${section}"]`).textContent.trim();
+                    
+                    // Update active nav link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    document.querySelector(`.nav-link[data-section="${section}"]`).classList.add('active');
+                    
+                    // Update data
+                    if(section === 'dashboard') updateDashboard();
+                    if(section === 'employees') loadEmployees();
+                    if(section === 'inventory') loadInventory();
+                    if(section === 'sales') loadSales();
+                });
+            });
+            
+            // Global Search Functionality
+            function performSearch(searchTerm) {
+                searchTerm = searchTerm.toLowerCase().trim();
+                searchQueryText.textContent = searchTerm;
+                
+                if (!searchTerm) {
+                    // If search is empty, show current section
+                    const activeSection = document.querySelector('.nav-link.active').getAttribute('data-section');
+                    searchResultsSection.style.display = 'none';
+                    backButton.style.display = 'none';
+                    document.getElementById(`${activeSection}Section`).style.display = 'block';
+                    return;
+                }
+                
+                // Hide all sections and show search results
+                sections.forEach(s => s.style.display = 'none');
+                searchResultsSection.style.display = 'block';
+                backButton.style.display = 'inline-block';
+                sectionTitle.textContent = 'Search Results';
+                
+                // Filter data from all sections
+                const employeesResults = filterEmployees(searchTerm, true);
+                const inventoryResults = filterInventory(searchTerm, true);
+                const salesResults = filterSales(searchTerm, true);
+                
+                // Update counts
+                document.getElementById('employeesResultsCount').textContent = employeesResults.length;
+                document.getElementById('inventoryResultsCount').textContent = inventoryResults.length;
+                document.getElementById('salesResultsCount').textContent = salesResults.length;
+                
+                // Display employee results
+                const employeesTableBody = document.querySelector('#employeesResultsTable tbody');
+                employeesTableBody.innerHTML = '';
+                
+                employeesResults.slice(0, 3).forEach(emp => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${emp.name}</td>
+                        <td>${emp.position}</td>
+                        <td>${emp.department}</td>
+                    `;
+                    employeesTableBody.appendChild(row);
+                });
+                
+                // Display inventory results
+                const inventoryTableBody = document.querySelector('#inventoryResultsTable tbody');
+                inventoryTableBody.innerHTML = '';
+                
+                inventoryResults.slice(0, 3).forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.quantity}</td>
+                    `;
+                    inventoryTableBody.appendChild(row);
+                });
+                
+                // Display sales results
+                const salesTableBody = document.querySelector('#salesResultsTable tbody');
+                salesTableBody.innerHTML = '';
+                
+                salesResults.slice(0, 3).forEach(sale => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sale.customer}</td>
+                        <td>${sale.product}</td>
+                        <td>Rs. ${sale.amount.toLocaleString()}</td>
+                    `;
+                    salesTableBody.appendChild(row);
+                });
+            }
+            
+            // Search event listeners
+            searchButton.addEventListener('click', function() {
+                performSearch(globalSearch.value);
+            });
+            
+            globalSearch.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch(globalSearch.value);
+                }
+            });
+            
+            // Filter Employees
+            function filterEmployees(searchTerm, returnResults = false) {
+                const filtered = employees.filter(emp => 
+                    emp.name.toLowerCase().includes(searchTerm) || 
+                    emp.position.toLowerCase().includes(searchTerm) || 
+                    emp.department.toLowerCase().includes(searchTerm) ||
+                    emp.email.toLowerCase().includes(searchTerm)
+                );
+                
+                if (returnResults) return filtered;
+                
+                const tableBody = document.querySelector('#employeesTable tbody');
+                tableBody.innerHTML = '';
+                
+                filtered.forEach(emp => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${emp.id}</td>
+                        <td>${emp.name}</td>
+                        <td>${emp.position}</td>
+                        <td>${emp.department}</td>
+                        <td>Rs. ${emp.salary.toLocaleString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1 edit-employee" data-id="${emp.id}">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger delete-employee" data-id="${emp.id}">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // Reattach event listeners
+                document.querySelectorAll('.edit-employee').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const empId = parseInt(this.getAttribute('data-id'));
+                        editEmployee(empId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-employee').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const empId = parseInt(this.getAttribute('data-id'));
+                        deleteEmployee(empId);
+                    });
+                });
+            }
+            
+            // Filter Inventory
+            function filterInventory(searchTerm, returnResults = false) {
+                const filtered = inventory.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) || 
+                    item.category.toLowerCase().includes(searchTerm) || 
+                    item.status.toLowerCase().includes(searchTerm)
+                );
+                
+                if (returnResults) return filtered;
+                
+                const tableBody = document.querySelector('#inventoryTable tbody');
+                tableBody.innerHTML = '';
+                
+                filtered.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.quantity}</td>
+                        <td>Rs. ${item.price.toLocaleString()}</td>
+                        <td><span class="badge ${item.status === 'In Stock' ? 'bg-success' : 'bg-warning'}">${item.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1 edit-inventory" data-id="${item.id}">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger delete-inventory" data-id="${item.id}">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // Update product dropdown in sales modal
+                const productDropdown = document.getElementById('saleProduct');
+                productDropdown.innerHTML = '<option value="">Select Product</option>';
+                inventory.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.name;
+                    option.textContent = `${item.name} (Rs. ${item.price})`;
+                    productDropdown.appendChild(option);
+                });
+                
+                // Reattach event listeners
+                document.querySelectorAll('.edit-inventory').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const itemId = parseInt(this.getAttribute('data-id'));
+                        editInventory(itemId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-inventory').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const itemId = parseInt(this.getAttribute('data-id'));
+                        deleteInventory(itemId);
+                    });
+                });
+            }
+            
+            // Filter Sales
+            function filterSales(searchTerm, returnResults = false) {
+                const filtered = sales.filter(sale => 
+                    sale.customer.toLowerCase().includes(searchTerm) || 
+                    sale.product.toLowerCase().includes(searchTerm) || 
+                    sale.status.toLowerCase().includes(searchTerm)
+                );
+                
+                if (returnResults) return filtered;
+                
+                const tableBody = document.querySelector('#salesTable tbody');
+                tableBody.innerHTML = '';
+                
+                filtered.forEach(sale => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sale.id}</td>
+                        <td>${sale.date}</td>
+                        <td>${sale.customer}</td>
+                        <td>${sale.product}</td>
+                        <td>${sale.quantity}</td>
+                        <td>Rs. ${sale.amount.toLocaleString()}</td>
+                        <td><span class="badge ${sale.status === 'Completed' ? 'bg-success' : 'bg-warning'}">${sale.status}</span></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            // Update Dashboard Stats
+            function updateDashboard() {
+                document.getElementById('totalSales').textContent = `Rs. ${sales.reduce((sum, sale) => sum + sale.amount, 0).toLocaleString()}`;
+                document.getElementById('salesChange').textContent = `${Math.floor(Math.random() * 20) - 5}% from last month`;
+                document.getElementById('totalEmployees').textContent = employees.length;
+                document.getElementById('employeesStatus').textContent = `${Math.floor(Math.random() * 5) + 1} on leave`;
+                document.getElementById('totalInventory').textContent = inventory.length;
+                document.getElementById('inventoryStatus').textContent = `${inventory.filter(item => item.status === 'Low Stock').length} low stock items`;
+                document.getElementById('recentOrders').textContent = sales.filter(sale => new Date(sale.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
+                document.getElementById('ordersStatus').textContent = `${sales.filter(sale => sale.status === 'Pending').length} pending`;
+            }
+            
+            // Load Employees
+            function loadEmployees() {
+                const tableBody = document.querySelector('#employeesTable tbody');
+                tableBody.innerHTML = '';
+                
+                employees.forEach(emp => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${emp.id}</td>
+                        <td>${emp.name}</td>
+                        <td>${emp.position}</td>
+                        <td>${emp.department}</td>
+                        <td>Rs. ${emp.salary.toLocaleString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1 edit-employee" data-id="${emp.id}">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger delete-employee" data-id="${emp.id}">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // Add event listeners to edit/delete buttons
+                document.querySelectorAll('.edit-employee').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const empId = parseInt(this.getAttribute('data-id'));
+                        editEmployee(empId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-employee').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const empId = parseInt(this.getAttribute('data-id'));
+                        deleteEmployee(empId);
+                    });
+                });
+            }
+            
+            // Edit Employee
+            function editEmployee(empId) {
+                const employee = employees.find(emp => emp.id === empId);
+                if(employee) {
+                    document.getElementById('empName').value = employee.name;
+                    document.getElementById('empEmail').value = employee.email;
+                    document.getElementById('empPosition').value = employee.position;
+                    document.getElementById('empDepartment').value = employee.department;
+                    document.getElementById('empSalary').value = employee.salary;
+                    
+                    // Change modal title and button
+                    document.getElementById('addEmployeeModalLabel').textContent = 'Edit Employee';
+                    document.getElementById('saveEmployeeBtn').textContent = 'Update Employee';
+                    document.getElementById('saveEmployeeBtn').setAttribute('data-edit-id', empId);
+                    
+                    // Show modal
+                    new bootstrap.Modal(document.getElementById('addEmployeeModal')).show();
+                }
+            }
+            
+            // Delete Employee
+            function deleteEmployee(empId) {
+                if(confirm('Are you sure you want to delete this employee?')) {
+                    employees = employees.filter(emp => emp.id !== empId);
+                    loadEmployees();
+                    updateDashboard();
+                    
+                    // Add activity
+                    addActivity(`Deleted employee ID: ${empId}`);
+                }
+            }
+            
+            // Load Inventory
+            function loadInventory() {
+                const tableBody = document.querySelector('#inventoryTable tbody');
+                tableBody.innerHTML = '';
+                
+                inventory.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.quantity}</td>
+                        <td>Rs. ${item.price.toLocaleString()}</td>
+                        <td><span class="badge ${item.status === 'In Stock' ? 'bg-success' : 'bg-warning'}">${item.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1 edit-inventory" data-id="${item.id}">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger delete-inventory" data-id="${item.id}">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // Update product dropdown in sales modal
+                const productDropdown = document.getElementById('saleProduct');
+                productDropdown.innerHTML = '<option value="">Select Product</option>';
+                inventory.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.name;
+                    option.textContent = `${item.name} (Rs. ${item.price})`;
+                    productDropdown.appendChild(option);
+                });
+                
+                // Add event listeners to edit/delete buttons
+                document.querySelectorAll('.edit-inventory').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const itemId = parseInt(this.getAttribute('data-id'));
+                        editInventory(itemId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-inventory').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const itemId = parseInt(this.getAttribute('data-id'));
+                        deleteInventory(itemId);
+                    });
+                });
+            }
+            
+            // Edit Inventory
+            function editInventory(itemId) {
+                const item = inventory.find(i => i.id === itemId);
+                if(item) {
+                    document.getElementById('itemName').value = item.name;
+                    document.getElementById('itemCategory').value = item.category;
+                    document.getElementById('itemQuantity').value = item.quantity;
+                    document.getElementById('itemPrice').value = item.price;
+                    
+                    // Change modal title and button
+                    document.getElementById('addInventoryModalLabel').textContent = 'Edit Inventory Item';
+                    document.getElementById('saveInventoryBtn').textContent = 'Update Item';
+                    document.getElementById('saveInventoryBtn').setAttribute('data-edit-id', itemId);
+                    
+                    // Show modal
+                    new bootstrap.Modal(document.getElementById('addInventoryModal')).show();
+                }
+            }
+            
+            // Delete Inventory
+            function deleteInventory(itemId) {
+                if(confirm('Are you sure you want to delete this inventory item?')) {
+                    inventory = inventory.filter(item => item.id !== itemId);
+                    loadInventory();
+                    updateDashboard();
+                    
+                    // Add activity
+                    addActivity(`Deleted inventory item ID: ${itemId}`);
+                }
+            }
+            
+            // Load Sales
+            function loadSales() {
+                const tableBody = document.querySelector('#salesTable tbody');
+                tableBody.innerHTML = '';
+                
+                sales.forEach(sale => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sale.id}</td>
+                        <td>${sale.date}</td>
+                        <td>${sale.customer}</td>
+                        <td>${sale.product}</td>
+                        <td>${sale.quantity}</td>
+                        <td>Rs. ${sale.amount.toLocaleString()}</td>
+                        <td><span class="badge ${sale.status === 'Completed' ? 'bg-success' : 'bg-warning'}">${sale.status}</span></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            // Load Activity
+            function loadActivity() {
+                const tableBody = document.querySelector('#activityTable tbody');
+                tableBody.innerHTML = '';
+                
+                activities.forEach(activity => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${activity.time}</td>
+                        <td>${activity.user}</td>
+                        <td>${activity.activity}</td>
+                        <td><span class="badge bg-success">${activity.status}</span></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            // Add Activity
+            function addActivity(activityText) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                activities.unshift({
+                    time: timeStr,
+                    user: "Admin",
+                    activity: activityText,
+                    status: "Completed"
+                });
+                
+                // Keep only last 50 activities
+                if (activities.length > 50) {
+                    activities.pop();
+                }
+                
+                loadActivity();
+            }
+            
+            // Refresh Activity
+            document.getElementById('refreshActivity').addEventListener('click', function() {
+                addActivity("Refreshed activity feed");
+            });
+            
+            // Save Employee
+            document.getElementById('saveEmployeeBtn').addEventListener('click', function() {
+                const name = document.getElementById('empName').value;
+                const email = document.getElementById('empEmail').value;
+                const position = document.getElementById('empPosition').value;
+                const department = document.getElementById('empDepartment').value;
+                const salary = parseFloat(document.getElementById('empSalary').value);
+                const editId = this.getAttribute('data-edit-id');
+                
+                if(name && email && position && department && salary) {
+                    if(editId) {
+                        // Update existing employee
+                        const index = employees.findIndex(emp => emp.id === parseInt(editId));
+                        if(index !== -1) {
+                            employees[index] = {
+                                id: parseInt(editId),
+                                name,
+                                email,
+                                position,
+                                department,
+                                salary
+                            };
+                            addActivity(`Updated employee: ${name}`);
+                        }
+                    } else {
+                        // Add new employee
+                        const newId = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+                        
+                        employees.push({
+                            id: newId,
+                            name,
+                            email,
+                            position,
+                            department,
+                            salary
+                        });
+                        
+                        addActivity(`Added new employee: ${name}`);
+                    }
+                    
+                    // Close modal and reset form
+                    bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal')).hide();
+                    document.getElementById('employeeForm').reset();
+                    
+                    // Reset edit mode
+                    document.getElementById('addEmployeeModalLabel').textContent = 'Add New Employee';
+                    this.textContent = 'Save Employee';
+                    this.removeAttribute('data-edit-id');
+                    
+                    // Update employees list
+                    loadEmployees();
+                    updateDashboard();
+                } else {
+                    alert('Please fill all fields');
+                }
+            });
+            
+            // Save Inventory Item
+            document.getElementById('saveInventoryBtn').addEventListener('click', function() {
+                const name = document.getElementById('itemName').value;
+                const category = document.getElementById('itemCategory').value;
+                const quantity = parseInt(document.getElementById('itemQuantity').value);
+                const price = parseFloat(document.getElementById('itemPrice').value);
+                const editId = this.getAttribute('data-edit-id');
+                
+                if(name && category && quantity && price) {
+                    if(editId) {
+                        // Update existing item
+                        const index = inventory.findIndex(item => item.id === parseInt(editId));
+                        if(index !== -1) {
+                            const status = quantity > 10 ? "In Stock" : "Low Stock";
+                            inventory[index] = {
+                                id: parseInt(editId),
+                                name,
+                                category,
+                                quantity,
+                                price,
+                                status
+                            };
+                            addActivity(`Updated inventory item: ${name}`);
+                        }
+                    } else {
+                        // Add new item
+                        const newId = inventory.length > 0 ? Math.max(...inventory.map(i => i.id)) + 1 : 1;
+                        const status = quantity > 10 ? "In Stock" : "Low Stock";
+                        
+                        inventory.push({
+                            id: newId,
+                            name,
+                            category,
+                            quantity,
+                            price,
+                            status
+                        });
+                        
+                        addActivity(`Added new inventory item: ${name}`);
+                    }
+                    
+                    // Close modal and reset form
+                    bootstrap.Modal.getInstance(document.getElementById('addInventoryModal')).hide();
+                    document.getElementById('inventoryForm').reset();
+                    
+                    // Reset edit mode
+                    document.getElementById('addInventoryModalLabel').textContent = 'Add Inventory Item';
+                    this.textContent = 'Save Item';
+                    this.removeAttribute('data-edit-id');
+                    
+                    // Update inventory list
+                    loadInventory();
+                    updateDashboard();
+                } else {
+                    alert('Please fill all fields');
+                }
+            });
+            
+            // Save Sale
+            document.getElementById('saveSaleBtn').addEventListener('click', function() {
+                const customer = document.getElementById('saleCustomer').value;
+                const product = document.getElementById('saleProduct').value;
+                const quantity = parseInt(document.getElementById('saleQuantity').value);
+                const date = document.getElementById('saleDate').value;
+                
+                if(customer && product && quantity && date) {
+                    const newId = sales.length > 0 ? Math.max(...sales.map(s => s.id)) + 1 : 1;
+                    const productData = inventory.find(item => item.name === product);
+                    const amount = productData ? productData.price * quantity : 0;
+                    const status = Math.random() > 0.3 ? "Completed" : "Pending";
+                    
+                    sales.push({
+                        id: newId,
+                        date,
+                        customer,
+                        product,
+                        quantity,
+                        amount,
+                        status
+                    });
+                    
+                    // Close modal and reset form
+                    bootstrap.Modal.getInstance(document.getElementById('addSaleModal')).hide();
+                    document.getElementById('saleForm').reset();
+                    
+                    // Update sales list and dashboard
+                    loadSales();
+                    updateDashboard();
+                    
+                    // Add activity
+                    addActivity(`Recorded new sale to ${customer} (Rs. ${amount})`);
+                } else {
+                    alert('Please fill all fields');
+                }
+            });
+            
+            // Set today's date as default in sale date field
+            document.getElementById('saleDate').valueAsDate = new Date();
+            
+            // Reset modal forms when hidden
+            document.getElementById('addEmployeeModal').addEventListener('hidden.bs.modal', function() {
+                document.getElementById('employeeForm').reset();
+                document.getElementById('addEmployeeModalLabel').textContent = 'Add New Employee';
+                document.getElementById('saveEmployeeBtn').textContent = 'Save Employee';
+                document.getElementById('saveEmployeeBtn').removeAttribute('data-edit-id');
+            });
+            
+            document.getElementById('addInventoryModal').addEventListener('hidden.bs.modal', function() {
+                document.getElementById('inventoryForm').reset();
+                document.getElementById('addInventoryModalLabel').textContent = 'Add Inventory Item';
+                document.getElementById('saveInventoryBtn').textContent = 'Save Item';
+                document.getElementById('saveInventoryBtn').removeAttribute('data-edit-id');
+            });
+        });
+    </script>
+</body>
+</html>
